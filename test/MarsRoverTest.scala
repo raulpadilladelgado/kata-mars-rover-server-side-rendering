@@ -1,4 +1,5 @@
 
+import domain.{Command, MarsRover, North, Position, South}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should
 import org.scalatest.prop.TableDrivenPropertyChecks

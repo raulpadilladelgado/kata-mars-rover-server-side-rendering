@@ -1,4 +1,6 @@
-class MarsRover (initialOrientation: Orientation, initialPosition: Position) {
+package domain
+
+class MarsRover private (initialOrientation: Orientation, initialPosition: Position) {
   var orientation: Orientation = initialOrientation
   var position: Position = initialPosition
 

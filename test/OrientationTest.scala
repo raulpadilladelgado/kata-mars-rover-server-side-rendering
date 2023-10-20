@@ -1,15 +1,16 @@
+import domain.{East, North, South, West}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class OrientationTest extends AnyFunSpec with TableDrivenPropertyChecks with should.Matchers {
-  describe("Orientation should be") {
+  describe("domain.Orientation should be") {
     Table(
       ("label", "initialDirection", "expectedDirection"),
-      ("West when looking for left facing North", North(), West()),
-      ("North when looking for left facing East", East(), North()),
-      ("East when looking for left facing South", South(), East()),
-      ("South when looking for left facing West", West(), South())
+      ("domain.West when looking for left facing domain.North", North(), West()),
+      ("domain.North when looking for left facing domain.East", East(), North()),
+      ("domain.East when looking for left facing domain.South", South(), East()),
+      ("domain.South when looking for left facing domain.West", West(), South())
     ).foreach { case (label, initialOrientation, expectedOrientation) =>
       it(s"$label") {
         initialOrientation.atLeft() should be(expectedOrientation)
@@ -17,10 +18,10 @@ class OrientationTest extends AnyFunSpec with TableDrivenPropertyChecks with sho
     }
     Table(
       ("label", "initialDirection", "expectedDirection"),
-      ("East when looking for right facing North", North(), East()),
-      ("South when looking for right facing East", East(), South()),
-      ("West when looking for right facing South", South(), West()),
-      ("North when looking for right facing West", West(), North())
+      ("domain.East when looking for right facing domain.North", North(), East()),
+      ("domain.South when looking for right facing domain.East", East(), South()),
+      ("domain.West when looking for right facing domain.South", South(), West()),
+      ("domain.North when looking for right facing domain.West", West(), North())
     ).foreach { case (label, initialOrientation, expectedOrientation) =>
       it(s"$label") {
         initialOrientation.atRight() should be(expectedOrientation)

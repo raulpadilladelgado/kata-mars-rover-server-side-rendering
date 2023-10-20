@@ -1,3 +1,5 @@
+package domain
+
 case class Position(longitude: Int, latitude: Int) {
   def moveForwardBasedOn(orientation: Orientation): Position = {
     orientation match {
