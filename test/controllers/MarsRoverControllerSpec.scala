@@ -15,10 +15,16 @@ import play.api.test.Helpers._
 class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
 
   "MarsRoverController should" should {
+    "land a Mars Rover" in {
+      val controller = new MarsRoverController(stubControllerComponents())
+      val home = controller.retrieveStatus().apply(FakeRequest(POST, "/"))
+
+      status(home) mustBe OK
+    }
 
     "retrieve mars rover status" in {
       val controller = new MarsRoverController(stubControllerComponents())
-      val home = controller.index().apply(FakeRequest(GET, "/"))
+      val home = controller.retrieveStatus().apply(FakeRequest(GET, "/"))
 
       status(home) mustBe OK
       contentType(home) mustBe Some("application/json")
