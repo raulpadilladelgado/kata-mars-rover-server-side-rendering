@@ -1,8 +1,14 @@
 package controllers
 
+import application.usecases.{LandMarsRover, SendCommandToMarsRover}
+import domain.{Command, MarsRover, North, Position}
+import infrastructure.controllers.MarsRoverController
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatestplus.mockito.MockitoSugar.mock
 import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
-import play.api.libs.json.Json
+import play.api.Play.materializer
+import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import play.api.test.Helpers._
 
@@ -15,28 +21,63 @@ import play.api.test.Helpers._
 class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
 
   "MarsRoverController should" should {
-    "land a Mars Rover" in {
-      val controller = new MarsRoverController(stubControllerComponents())
-      val home = controller.retrieveStatus().apply(FakeRequest(POST, "/"))
+    val landMarsRover = mock[LandMarsRover]
+    when(landMarsRover.execute()).thenAnswer(_ => MarsRover.land(North(), Position(0, 0)))
+    val sendCommandToMarsRover = mock[SendCommandToMarsRover]
+    when(sendCommandToMarsRover.execute(Command("F"))).thenAnswer(_ => MarsRover.land(North(), Position(0, 1)))
 
-      status(home) mustBe OK
+    "land a Mars Rover" in {
+      val controller = new MarsRoverController(
+        stubControllerComponents(),
+        landMarsRover,
+        sendCommandToMarsRover
+      )
+
+      val response = controller.land().apply(FakeRequest(POST, "/"))
+
+      status(response) mustBe CREATED
+      contentType(response) mustBe Some("application/json")
+      val expectedResponse = Json.obj(
+        "orientation" -> "North",
+        "longitude" -> 0,
+        "latitude" -> 0
+      )
+      contentAsJson(response) mustBe expectedResponse
     }
 
-    "retrieve mars rover status" in {
-      val controller = new MarsRoverController(stubControllerComponents())
-      val home = controller.retrieveStatus().apply(FakeRequest(GET, "/"))
+    "retrieve the mars rover status" in {
+      val controller = new MarsRoverController(stubControllerComponents(), landMarsRover, sendCommandToMarsRover)
+      controller.land().apply(FakeRequest(POST, "/"))
 
-      status(home) mustBe OK
-      contentType(home) mustBe Some("application/json")
-      contentAsJson(home).prettifier mustBe Json.toJson(
-        """{
-          | "orientation": "North",
-          | "position": {
-          |   "longitude": 0,
-          |   "latitude": 0
-          | }
-          |}""".stripMargin
-      ).prettifier
+      val response = controller.retrieveStatus().apply(FakeRequest(GET, "/"))
+
+      status(response) mustBe OK
+      contentType(response) mustBe Some("application/json")
+      val expectedResponse = Json.obj(
+        "orientation" -> "North",
+        "longitude" -> 0,
+        "latitude" -> 0
+      )
+      contentAsJson(response) mustBe expectedResponse
+    }
+
+    "order command to the mars rover" in {
+      val controller = new MarsRoverController(stubControllerComponents(), landMarsRover, sendCommandToMarsRover)
+      controller.land().apply(FakeRequest(POST, "/command"))
+
+      val response = controller.orderCommand().apply(FakeRequest(
+        POST,
+        "/command"
+      ).withTextBody("F"))
+
+      status(response) mustBe OK
+      contentType(response) mustBe Some("application/json")
+      val expectedResponse = Json.obj(
+        "orientation" -> "North",
+        "longitude" -> 0,
+        "latitude" -> 1
+      )
+      contentAsJson(response) mustBe expectedResponse
     }
   }
 }
