@@ -1,6 +1,6 @@
 package controllers
 
-import application.usecases.{LandMarsRover, SendCommandToMarsRover}
+import application.usecases.{LandMarsRover, RetrieveMarsRover, OrderCommandToMarsRover}
 import domain.{Command, MarsRover, North, Position}
 import infrastructure.controllers.MarsRoverController
 import org.mockito.Mockito.{times, verify, when}
@@ -14,27 +14,19 @@ import play.api.test.Helpers._
 
 import java.util.UUID
 
-/**
- * Add your spec here.
- * You can mock out a whole application including requests, plugins etc.
- *
- * For more information, see https://www.playframework.com/documentation/latest/ScalaTestingWithScalaTest
- */
+/*
+* ✅"land a Mars Rover"
+* ✅"retrieve the mars rover status"
+* ✅"order command to the mars rover"
+* "respond bad request when mars rover is not found retrieving its status"
+* "respond bad request when mars rover is not found ordering command to it"
+* "respond bad request when mars rover cannot landing to a position"
+* "respond bad request when mars rover cannot move to a position"
+* */
+
 class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Injecting {
-
   "MarsRoverController should" should {
-    val landMarsRover = mock[LandMarsRover]
-    when(landMarsRover.execute()).thenAnswer(_ => MarsRover.land(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 0)))
-    val sendCommandToMarsRover = mock[SendCommandToMarsRover]
-    when(sendCommandToMarsRover.execute(Command("F"))).thenAnswer(_ => MarsRover.land(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 1)))
-
     "land a Mars Rover" in {
-      val controller = new MarsRoverController(
-        stubControllerComponents(),
-        landMarsRover,
-        sendCommandToMarsRover
-      )
-
       val response = controller.land().apply(FakeRequest(POST, "/"))
 
       status(response) mustBe CREATED
@@ -49,10 +41,11 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
     }
 
     "retrieve the mars rover status" in {
-      val controller = new MarsRoverController(stubControllerComponents(), landMarsRover, sendCommandToMarsRover)
       controller.land().apply(FakeRequest(POST, "/"))
 
-      val response = controller.retrieveStatus().apply(FakeRequest(GET, "/"))
+      val response = controller.retrieveStatus().apply(
+        FakeRequest(GET, "/").withTextBody("33a4a923-4013-48fa-b408-fcfe3855b1e3")
+      )
 
       status(response) mustBe OK
       contentType(response) mustBe Some("application/json")
@@ -66,13 +59,14 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
     }
 
     "order command to the mars rover" in {
-      val controller = new MarsRoverController(stubControllerComponents(), landMarsRover, sendCommandToMarsRover)
       controller.land().apply(FakeRequest(POST, "/command"))
 
       val response = controller.orderCommand().apply(FakeRequest(
         POST,
         "/command"
-      ).withTextBody("F"))
+      ).withJsonBody(
+        Json.obj("command" -> "F", "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3"))
+      )
 
       status(response) mustBe OK
       contentType(response) mustBe Some("application/json")
@@ -85,4 +79,34 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
       contentAsJson(response) mustBe expectedResponse
     }
   }
+
+  val landMarsRover: LandMarsRover = {
+    val landMarsRover = mock[LandMarsRover]
+    when(landMarsRover.execute()).thenAnswer(_ => MarsRover.from(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 0)))
+    landMarsRover
+  }
+
+  val orderCommandToMarsRover: OrderCommandToMarsRover = {
+    val orderCommandToMarsRover = mock[OrderCommandToMarsRover]
+    when(orderCommandToMarsRover.execute(
+      UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"),
+      Command("F")
+    )).thenAnswer(_ => MarsRover.from(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 1)))
+    orderCommandToMarsRover
+  }
+
+  val retrieveMarsRover: RetrieveMarsRover = {
+    val retrieveMarsRover = mock[RetrieveMarsRover]
+    when(retrieveMarsRover.execute(
+      UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3")
+    )).thenAnswer(_ => MarsRover.from(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 0)))
+    retrieveMarsRover
+  }
+
+  val controller: MarsRoverController = new MarsRoverController(
+    stubControllerComponents(),
+    landMarsRover,
+    orderCommandToMarsRover,
+    retrieveMarsRover
+  )
 }

@@ -15,5 +15,5 @@ class MarsRover private (givenId: UUID, initialOrientation: Orientation, initial
 }
 
 object MarsRover {
-  def land(id: UUID, orientation: Orientation, position: Position) = new MarsRover(id, orientation, position)
+  def from(id: UUID, orientation: Orientation, position: Position) = new MarsRover(id, orientation, position)
 }
