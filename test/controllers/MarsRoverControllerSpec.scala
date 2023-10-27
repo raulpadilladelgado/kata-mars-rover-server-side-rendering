@@ -12,6 +12,8 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test._
 import play.api.test.Helpers._
 
+import java.util.UUID
+
 /**
  * Add your spec here.
  * You can mock out a whole application including requests, plugins etc.
@@ -22,9 +24,9 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
 
   "MarsRoverController should" should {
     val landMarsRover = mock[LandMarsRover]
-    when(landMarsRover.execute()).thenAnswer(_ => MarsRover.land(North(), Position(0, 0)))
+    when(landMarsRover.execute()).thenAnswer(_ => MarsRover.land(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 0)))
     val sendCommandToMarsRover = mock[SendCommandToMarsRover]
-    when(sendCommandToMarsRover.execute(Command("F"))).thenAnswer(_ => MarsRover.land(North(), Position(0, 1)))
+    when(sendCommandToMarsRover.execute(Command("F"))).thenAnswer(_ => MarsRover.land(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 1)))
 
     "land a Mars Rover" in {
       val controller = new MarsRoverController(
@@ -38,6 +40,7 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
       status(response) mustBe CREATED
       contentType(response) mustBe Some("application/json")
       val expectedResponse = Json.obj(
+        "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3",
         "orientation" -> "North",
         "longitude" -> 0,
         "latitude" -> 0
@@ -54,6 +57,7 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
       status(response) mustBe OK
       contentType(response) mustBe Some("application/json")
       val expectedResponse = Json.obj(
+        "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3",
         "orientation" -> "North",
         "longitude" -> 0,
         "latitude" -> 0
@@ -73,6 +77,7 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
       status(response) mustBe OK
       contentType(response) mustBe Some("application/json")
       val expectedResponse = Json.obj(
+        "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3",
         "orientation" -> "North",
         "longitude" -> 0,
         "latitude" -> 1

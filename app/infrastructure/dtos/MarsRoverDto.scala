@@ -2,10 +2,13 @@ package infrastructure.dtos
 
 import domain.MarsRover
 
-case class MarsRoverDto(orientation: String, longitude: Int, latitude: Int) {
+import java.util.UUID
+
+case class MarsRoverDto(id: UUID, orientation: String, longitude: Int, latitude: Int) {
   def toJson(): String = {
     s"""
        |{
+       | "id": "$id",
        | "orientation": "$orientation",
        | "longitude": $longitude,
        | "latitude": $latitude
@@ -15,6 +18,6 @@ case class MarsRoverDto(orientation: String, longitude: Int, latitude: Int) {
 
 object MarsRoverDto {
   def from(marsRover: MarsRover): MarsRoverDto = {
-    MarsRoverDto(marsRover.orientation.toString, marsRover.position.longitude, marsRover.position.latitude)
+    MarsRoverDto(marsRover.id, marsRover.orientation.toString, marsRover.position.longitude, marsRover.position.latitude)
   }
 }

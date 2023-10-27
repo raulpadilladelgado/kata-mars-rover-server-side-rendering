@@ -1,6 +1,9 @@
 package domain
 
-class MarsRover private (initialOrientation: Orientation, initialPosition: Position) {
+import java.util.UUID
+
+class MarsRover private (givenId: UUID, initialOrientation: Orientation, initialPosition: Position) {
+  val id: UUID = givenId
   var orientation: Orientation = initialOrientation
   var position: Position = initialPosition
 
@@ -12,5 +15,5 @@ class MarsRover private (initialOrientation: Orientation, initialPosition: Posit
 }
 
 object MarsRover {
-  def land(orientation: Orientation, position: Position) = new MarsRover(orientation, position)
+  def land(id: UUID, orientation: Orientation, position: Position) = new MarsRover(id, orientation, position)
 }
