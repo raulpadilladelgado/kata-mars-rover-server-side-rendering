@@ -65,7 +65,7 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
         POST,
         "/command"
       ).withJsonBody(
-        Json.obj("command" -> "F", "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3"))
+        Json.obj("command" -> "FFRFLF", "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3"))
       )
 
       status(response) mustBe OK
@@ -73,8 +73,8 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
       val expectedResponse = Json.obj(
         "id" -> "33a4a923-4013-48fa-b408-fcfe3855b1e3",
         "orientation" -> "North",
-        "longitude" -> 0,
-        "latitude" -> 1
+        "longitude" -> 1,
+        "latitude" -> 3
       )
       contentAsJson(response) mustBe expectedResponse
     }
@@ -84,15 +84,6 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
     val landMarsRover = mock[LandMarsRover]
     when(landMarsRover.execute()).thenAnswer(_ => MarsRover.from(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 0)))
     landMarsRover
-  }
-
-  val orderCommandToMarsRover: OrderCommandToMarsRover = {
-    val orderCommandToMarsRover = mock[OrderCommandToMarsRover]
-    when(orderCommandToMarsRover.execute(
-      UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"),
-      Command("F")
-    )).thenAnswer(_ => MarsRover.from(UUID.fromString("33a4a923-4013-48fa-b408-fcfe3855b1e3"), North(), Position(0, 1)))
-    orderCommandToMarsRover
   }
 
   val retrieveMarsRover: RetrieveMarsRover = {
@@ -106,7 +97,6 @@ class MarsRoverControllerSpec extends PlaySpec with GuiceOneAppPerTest with Inje
   val controller: MarsRoverController = new MarsRoverController(
     stubControllerComponents(),
     landMarsRover,
-    orderCommandToMarsRover,
     retrieveMarsRover
   )
 }

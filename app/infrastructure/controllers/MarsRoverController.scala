@@ -12,7 +12,6 @@ import javax.inject._
 class MarsRoverController @Inject()(
                                      val controllerComponents: ControllerComponents,
                                      val landMarsRover: LandMarsRover,
-                                     val orderCommandToMarsRover: OrderCommandToMarsRover,
                                      val retrieveMarsRover: RetrieveMarsRover
                                    ) extends BaseController {
   def land(): Action[AnyContent] = Action {
@@ -28,10 +27,8 @@ class MarsRoverController @Inject()(
   def orderCommand(): Action[AnyContent] = Action { request =>
     val id: String = request.body.asJson.get("id").as[String]
     val command: String = request.body.asJson.get("command").as[String]
-    val marsRover = orderCommandToMarsRover.execute(
-      UUID.fromString(id),
-      Command(command)
-    )
+    val marsRover = retrieveMarsRover.execute(UUID.fromString(id))
+    marsRover.execute(Command(command))
     Ok(MarsRoverDto.from(marsRover).toJson()).as("application/json")
   }
 }
