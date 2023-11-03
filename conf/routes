@@ -3,10 +3,13 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
-GET     /                           infrastructure.controllers.MarsRoverController.retrieveStatus()
-POST     /                          infrastructure.controllers.MarsRoverController.land()
-POST     /command                   infrastructure.controllers.MarsRoverController.orderCommand()
+# Planet control panel
+GET         /                     infrastructure.controllers.PlanetController.retrieve()
+
+# Mars Rover control panel
+GET         /rover                infrastructure.controllers.MarsRoverController.retrieveStatus()
+POST        /rover                infrastructure.controllers.MarsRoverController.land()
+POST        /rover/command        infrastructure.controllers.MarsRoverController.orderCommand()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
