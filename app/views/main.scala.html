@@ -8,9 +8,6 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <style>
-                .highlighted {
-                    background-color: red;
-                }
 
                 table {
                     border-collapse: collapse;
@@ -38,50 +35,61 @@
                     height: 100vh;
                     margin: 0;
                 }
+
+                #game-map {
+                    position: relative;
+                    width: 500px;
+                    height: 300px;
+                    border: 1px solid #ccc;
+                    overflow: hidden;
+                }
+
+                #player {
+                    position: absolute;
+                    width: 50px;
+                    height: 50px;
+                    top: 0;
+                    left: 0;
+                    transition: top 20s, left 20s;
+                }
         </style>
     </head>
     <body>
-        <table>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-            </tr>
-        </table>
-        @* <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>*@
+        <h1>Mars Rover</h1>
+        <form method="POST" action="@infrastructure.controllers.routes.PlanetController.orderCommandToRover()">
+            <input type="text" name="command">
+            <button type="submit">Submit</button>
+        </form>
+        <div id="game-map">
+            <img id="player" src="@routes.Assets.versioned("images/car.png")" alt="Player">
+        </div>
         <script>
-                const cellToHighlight = document.querySelector(`tr:nth-child(${@marsRover.position.latitude +1}) td:nth-child(${@marsRover.position.longitude +1})`);
-                cellToHighlight.classList.toggle("highlighted");
+            movePlayer(@{-marsRover.position.longitude * 10}, @{-marsRover.position.latitude * 10});
+            rotatePlayer("@{marsRover.orientation.toString}")
+            function movePlayer(top, left) {
+                const player = document.getElementById("player");
+                player.style.top = `${left}px`;
+                player.style.left = `${top}px`;
+            }
+            function rotatePlayer(orientation) {
+                let rotationAngle = 0;
+                switch (orientation) {
+                    case "North":
+                        rotationAngle = 0;
+                        break;
+                    case "South":
+                        rotationAngle = 180;
+                        break;
+                    case "East":
+                        rotationAngle = 270;
+                        break;
+                    case "West":
+                        rotationAngle = 90;
+                        break;
+                }
+                const player = document.getElementById("player");
+                player.style.transform = `rotate(${rotationAngle}deg)`;
+            }
         </script>
     </body>
 </html>
